@@ -1,36 +1,142 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+```markdown
+# OAuth Approval Navigator & Agentic Readiness Engine
 
-## Getting Started
+A real-time developer intelligence tool built for the Composio APM Integrations assignment. It evaluates third-party SaaS OAuth setup complexity, approval gatekeeping, prerequisite friction, and the explicit boundary between AI agent automation and human intervention.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 1. Problem & Core Insights
+
+Connecting third-party apps via OAuth is a notorious friction point for AI engineers and agent builders. While initial API logic can be written in minutes, developers frequently hit hidden operational and compliance roadblocks weeks later:
+* **The Approval Delay:** Developers build against sandbox credentials assuming production roll-out is immediate, only to discover mandatory 3–6 week security audits or app marketplace verification processes.
+* **The "Who Does What" Boundary:** Unclear division of labor between what an automated agent can configure (scopes, manifests, redirect URIs, token refresh cycles) versus what requires human identity and legal authority (DNS TXT verification, paid developer accounts, terms of service agreements, demo screen recordings).
+* **Information Asymmetry:** Public documentation is fragmented across quickstarts, changelogs, forum threads, and gated developer consoles.
+
+This tool solves this by providing instant, actionable blueprints for any SaaS app on demand.
+
+---
+
+## 2. Key Capabilities
+
+* **Pre-baked Benchmark Archetypes:** High-contrast reference guides representing distinct friction tiers:
+  * **Notion (Low Complexity):** Zero-wait sandbox, immediate multi-tenant distribution toggle, basic privacy URL requirements.
+  * **Slack (Medium Complexity):** Highly automatable via app manifests (JSON/YAML), instant workspace-level deployment, optional directory listing review.
+  * **Google Cloud (Gatekept Complexity):** Free 100-user testing tier, but requires CASA Tier 2/3 security audits, DNS domain verification, and public YouTube demo submissions for restricted scopes.
+* **Live Agentic Investigation Engine:** For unfamiliar apps (e.g., HubSpot, Linear, Miro, Asana, Shopify), the system:
+  1. Issues targeted search queries via **Tavily Search API** to extract un-rendered developer documentation and approval workflows.
+  2. Synthesizes documentation using a fast LLM inference pipeline (**Groq LPU / LLaMA / GPT-OSS**) into a schema-enforced JSON structure.
+  3. Resiliently handles typos and misspellings (e.g., resolving `ubspot` to `HubSpot`).
+* **Operational Division of Labor:** Distinguishes programmatic code-level tasks an AI agent can execute from governance steps requiring human ownership.
+* **Evidence & Confidence Attribution:** Transparently cites authentic documentation source URLs and explicitly lists *Known Uncertainties* rather than hallucinating unverifiable review timelines.
+* **Shareability:** Supports deep-linking with URL query parameters (`?app=<slug>`) and 1-click Markdown export for engineering team alignment.
+
+---
+
+## 3. System Architecture
+
+```text
+               [Developer Query / App Name]
+                            │
+                            ▼
+           [Typo-Resilient Search Pipeline]
+     (Tavily API retrieves raw developer documentation)
+                            │
+                            ▼
+              [Structured LLM Synthesis]
+     (Groq LPU parses docs into strict JSON schema)
+                            │
+                            ▼
+           [OAuth Approval Navigator Dashboard]
+   ┌────────────────────────┬────────────────────────┐
+   │  Readiness Metrics     │  Prerequisites Radar   │
+   │  (Effort vs. Approval) │  (Domain, Video, Paid) │
+   ├────────────────────────┼────────────────────────┤
+   │  Division of Labor     │  Step-by-Step Playbook │
+   │  (Agent vs. Human)     │  (With Gotcha Warnings)│
+   └────────────────────────┴────────────────────────┘
+                            │
+                            ▼
+              [Share / Export (Markdown)]
+
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 4. Key Decisions & Trade-Offs
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **Strict JSON Schema vs. Freeform Markdown:**
+* *Decision:* Enforced a strict TypeScript interface via LLM JSON mode rather than raw unstructured text generation.
+* *Rationale:* Enables downstream programmatic consumption (e.g., triggering automated manifest generators or validation scripts) while ensuring consistent UI rendering across disparate providers.
 
-## Learn More
 
-To learn more about Next.js, take a look at the following resources:
+2. **Targeted Documentation Extraction (Tavily) vs. Generic Web Search:**
+* *Decision:* Leveraged Tavily's developer-focused search endpoints instead of broad scraping.
+* *Rationale:* Developer portals are frequently protected behind client-side rendering or fragmented across versions. Specialized extraction returns clean API reference content with low token noise.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+3. **Radical Transparency on Uncertainty:**
+* *Decision:* When documentation does not state exact review turnaround times or third-party audit fees (such as Google CASA Tier 3 lab pricing), the agent explicitly flags this in `Known Uncertainties`.
+* *Rationale:* In an APM integrations role, presenting an educated guess as a verified fact leads to blocked product roadmaps. Surfacing ambiguity is an operational feature, not a bug.
 
-## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 5. Limitations & Future Roadmap
+
+* **Console-Gated Documentation:** Some enterprise providers (e.g., Salesforce, QuickBooks) gate detailed review criteria behind authenticated developer consoles. The live agent operates exclusively on publicly accessible documentation.
+* **Dynamic Review Queues:** Provider approval turnaround times fluctuate dynamically based on seasonal submission volume; these can only be approximated based on public documentation statements.
+* **Future Extension (Automated Manifest Generation):** Extend the agent layer to output copy-pasteable manifests (such as Slack YAML or GitHub App manifests) directly from the investigation screen.
+
+---
+## 6. Local Setup & Installation
+
+### Prerequisites
+* **Node.js** (v18.0 or later)
+* Free API keys from:
+  * **Groq Console:** [console.groq.com](https://console.groq.com/)
+  * **Tavily Search:** [tavily.com](https://tavily.com/)
+
+### Step-by-Step Instructions
+
+1. **Clone the repository:**
+   ```bash
+   git clone [https://github.com/kavyasinghdogra/composio-oauth-navigator.git](https://github.com/kavyasinghdogra/composio-oauth-navigator.git)
+   cd composio-oauth-navigator
+
+```
+
+
+2. **Install dependencies:**
+```bash
+npm install
+
+```
+
+
+3. **Configure environment variables:**
+Create a `.env.local` file in the root directory:
+```env
+GROQ_API_KEY=gsk_your_groq_api_key_here
+TAVILY_API_KEY=tvly-your_tavily_api_key_here
+
+```
+
+
+4. **Start the local development server:**
+```bash
+npm run dev
+
+```
+
+
+5. **Open in browser:**
+Navigate to [http://localhost:3000](http://localhost:3000).
+
+```
+
+---
+
+<FollowUp label="Ready to paste this into your README.md and push to GitHub?" query="I have copied the README.md content. What are the exact terminal commands to push everything to GitHub?"/>
+
+```
